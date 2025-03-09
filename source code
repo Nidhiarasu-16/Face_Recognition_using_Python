@@ -1,0 +1,31 @@
+import cv2
+
+#Loading face detection module
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+video_capture = cv2.VideoCapture(0) #open camera, 0 = default camera
+
+if not video_capture.isOpened(): #Incase if the camera doesn't open...
+    print("Error: Could not access the camera.")
+    exit()
+
+while True: #continuous video capturing
+    open, frame = video_capture.read()
+    if not open:
+        print("Error: Failed to capture frame.") #if camera doesn't work
+        break
+
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #converting into grayscale, since face detection works better in B&W which adds accuracy
+    faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30))
+    #scaleFactor - makes detection more flexible
+    #minNeighbors - reducing false detections
+    #minSize - minimum face size for detection
+    for (x, y, w, h) in faces:
+        cv2.rectangle(frame, (x, y), (x + w, y + h),(0, 255, 255),2)
+        #                    top-left, bottom-right, RGB code,thickness
+    cv2.imshow("Face Detection", frame) #shows detected face in video frame
+    if cv2.waitKey(1) & 0xFF == ord('e'): #exit detection when 'e' is pressed
+        break
+
+video_capture.release() #Closes camera
+cv2.destroyAllWindows() #Closes opencv windows
